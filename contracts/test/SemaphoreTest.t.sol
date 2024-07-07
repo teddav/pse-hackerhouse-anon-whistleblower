@@ -7,7 +7,7 @@ import {ModuleManager} from "safe-contracts/base/ModuleManager.sol";
 
 import {TestUtils} from "./utils.sol";
 import {ISemaphore} from "../src/ISemaphore.sol";
-import {SemaphoreMasterModule} from "../src/SemaphoreVerifierModule.sol";
+import {SemaphoreWhistleblowerModule} from "../src/SemaphoreWhistleblowerModule.sol";
 
 contract SemaphoreTest is TestUtils {
     ISemaphore semaphore;
@@ -63,9 +63,10 @@ contract SemaphoreTest is TestUtils {
 
     function test_SemaphoreModuleAddMember() public {
         Safe safe = deployAndSetupSafe();
-        SemaphoreMasterModule module = new SemaphoreMasterModule(
+        SemaphoreWhistleblowerModule module = new SemaphoreWhistleblowerModule(
             address(safe),
-            semaphore
+            semaphore,
+            address(0)
         );
 
         bytes memory txData_enableModule = abi.encodeWithSelector(
@@ -80,7 +81,7 @@ contract SemaphoreTest is TestUtils {
         bytes memory signatures = getSignature(dataHash);
 
         module.addRemoveMember(
-            SemaphoreMasterModule.MemberAction.AddMember,
+            SemaphoreWhistleblowerModule.MemberAction.AddMember,
             dataHash,
             data,
             signatures
@@ -91,9 +92,10 @@ contract SemaphoreTest is TestUtils {
 
     function test_SemaphoreModuleRemoveMember() public {
         Safe safe = deployAndSetupSafe();
-        SemaphoreMasterModule module = new SemaphoreMasterModule(
+        SemaphoreWhistleblowerModule module = new SemaphoreWhistleblowerModule(
             address(safe),
-            semaphore
+            semaphore,
+            address(0)
         );
 
         bytes memory txData_enableModule = abi.encodeWithSelector(
@@ -108,7 +110,7 @@ contract SemaphoreTest is TestUtils {
         bytes memory signatures = getSignature(dataHash);
 
         module.addRemoveMember(
-            SemaphoreMasterModule.MemberAction.AddMember,
+            SemaphoreWhistleblowerModule.MemberAction.AddMember,
             dataHash,
             data,
             signatures
@@ -128,7 +130,7 @@ contract SemaphoreTest is TestUtils {
         bytes memory signatures2 = getSignature(dataHash2);
 
         module.addRemoveMember(
-            SemaphoreMasterModule.MemberAction.RemoveMember,
+            SemaphoreWhistleblowerModule.MemberAction.RemoveMember,
             dataHash2,
             data2,
             signatures2

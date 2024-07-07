@@ -43,11 +43,9 @@ async function main() {
   let merkleProof = group.generateMerkleProof(0);
   console.log("merkleProof", merkleProof);
 
-  const message = "im part of the group";
-  const scope = group.root;
+  const message = "test4";
 
-  // const proof = await generateProof(ids[0], group, message, scope);
-  const proof = await generateProof(ids[0], merkleProof, message, scope);
+  const proof = await generateProof(ids[0], merkleProof, message, "test4");
   assert(await verifyProof(proof), "couldn't verify semaphore proof");
 
   console.log(proof);

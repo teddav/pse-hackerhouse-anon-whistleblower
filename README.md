@@ -1,21 +1,25 @@
-# Anon storage proof
+# Anon DAO Whistleblower
 
-Prove that you know the preimage of a hash stored somewhere on chain.
+Allows anybody who's part of a DAO to alert on the malfunctions of the DAO anonymously.
 
-# Submodules
-
-I struggled with submodules, so that's just a reminder for me 😅
+# Otterscan
 
 ```bash
-forge install safe-contracts=safe-global/safe-smart-account@v1.4.1
+anvil --fork-url https://rpc.ankr.com/eth_sepolia
+docker pull otterscan/otterscan
+docker run --rm -p 5100:80 --name otterscan -d otterscan/otterscan
+```
 
-git submodule add https://github.com/foundry-rs/forge-std lib/forge-std
-git submodule add https://github.com/safe-global/safe-smart-account lib/safe-contracts
-cd lib/safe-contracts && git checkout v1.4.1
+Go to http://localhost:5100/
 
-# move
-git mv lib/forge-std contracts/lib/forge-std
-git mv lib/safe-contracts contracts/lib/safe-contracts
-# dont know if that was useful
-git submodule update --init --recursive
+Verify contract:
+
+```bash
+forge verify-contract --verifier sourcify --verifier-url http://localhost:5100 --rpc-url http://localhost:8545 0x4cF93296Aa133Fb62702b79d32e78d08Ebb03bf2 DAOWhistleblower
+```
+
+# Run
+
+```bash
+forge script ./script/Whistleblow.s.sol -vvv --broadcast
 ```

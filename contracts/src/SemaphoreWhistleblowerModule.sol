@@ -3,6 +3,7 @@ pragma solidity ^0.8.23;
 
 import {ISemaphore} from "./ISemaphore.sol";
 import {Enum} from "safe-contracts/common/Enum.sol";
+import {DAOWhistleblower} from "./DAOWhistleblower.sol";
 
 interface GnosisSafe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.
@@ -17,8 +18,6 @@ interface GnosisSafe {
         Enum.Operation operation
     ) external returns (bool success);
 
-    function isOwner(address owner) external view returns (bool);
-
     function checkSignatures(
         bytes32 dataHash,
         bytes memory data,
@@ -26,7 +25,7 @@ interface GnosisSafe {
     ) external view;
 }
 
-contract SemaphoreMasterModule {
+contract SemaphoreWhistleblowerModule {
     enum MemberAction {
         AddMember,
         RemoveMember
@@ -35,21 +34,30 @@ contract SemaphoreMasterModule {
     GnosisSafe public safe;
     ISemaphore public semaphore;
     uint256 public groupId;
+    DAOWhistleblower public whistleblower;
 
-    constructor(address _safe, ISemaphore _semaphore) {
+    constructor(address _safe, ISemaphore _semaphore, address _whistleblower) {
         safe = GnosisSafe(_safe);
         semaphore = _semaphore;
         groupId = semaphore.createGroup();
+        whistleblower = DAOWhistleblower(_whistleblower);
     }
 
-    function execAnyTx(
+    function execAnyTx(address to, uint256 value, bytes memory data) internal {
+        safe.execTransactionFromModule(to, value, data, Enum.Operation.Call);
+    }
+
+    function whistleblow(
         ISemaphore.SemaphoreProof calldata proof,
-        address to,
-        uint256 value,
-        bytes calldata data
+        string calldata ipfsHash
     ) public {
         semaphore.validateProof(groupId, proof);
-        safe.execTransactionFromModule(to, value, data, Enum.Operation.Call);
+
+        bytes memory data = abi.encodeWithSelector(
+            DAOWhistleblower.whistleblow.selector,
+            ipfsHash
+        );
+        execAnyTx(address(whistleblower), 0, data);
     }
 
     function addRemoveMember(
